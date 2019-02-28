@@ -7,10 +7,11 @@
 #include "SharedEnums.hpp"
 #include "SharedStructDefinitions.hpp"
 
-#define MODE_SELECT_PIN 67
+#define UP_PIN     10
+#define DOWN_PIN   11
+#define SELECT_PIN  6 
 
-#define UP_PIN   10
-#define DOWN_PIN 11
+#define MODE_PIN 9
 
 Buttons* pButtons;
 
@@ -42,9 +43,11 @@ class UserInputMonitor {
     void pollButtons() {
       Button tempUp;
       Button tempDown;
+      Button tempSelect;
       
       tempUp = pollButton(UP_PIN);
       tempDown = pollButton(DOWN_PIN);
+      tempSelect = pollButton(SELECT_PIN);
       
       if (tempUp != held) {
         buttons.up = tempUp;
@@ -53,46 +56,49 @@ class UserInputMonitor {
       if (tempDown != held) {
         buttons.down = tempDown;        
         if (tempDown == pressed) Serial.println("DOWN");
+      }
+      if (tempSelect != held) {
+        buttons.select = tempSelect;        
+        if (tempSelect == pressed) Serial.println("SELECT");
       }   
       
+    }
+    void pollSwitch() {
+      if (digitalRead(MODE_PIN) == HIGH) {
+        modeSwitch = manual;
+      } else  {
+        modeSwitch = automatic;
+      }
     }
   
      bool setMode(shiftMode _mode) {
       centralObject->setMode(_mode);
-    }
-     shiftMode getMode() {
-      return centralObject->getMode();
     }
      void setTargetCadence(float _targetCadence) {
       centralObject->setTargetCadence(_targetCadence);
     }
 
      void setupClass() {
-      Serial.println("Sertup UIM");
-      pinMode(MODE_SELECT_PIN, INPUT);
+      Serial.println("Setup UIM");
 
       pinMode(DOWN_PIN, INPUT);
       pinMode(UP_PIN, INPUT);
+      pinMode(SELECT_PIN, INPUT);
+      pinMode(MODE_PIN, INPUT);
+      
       
       buttons.up     = notPressed;
       buttons.down   = notPressed;
       buttons.select = notPressed;
-      pButtons     = &buttons;
+      pButtons       = &buttons;
       modeSwitch = manual;
+      Serial.println("Setup UIM");
     }
 
-     void automaticModeUI() {
-      
-    }
-
-     void manualModeUI() {
-      
-    }
-
-     void classMain() {
-      //this->centralObject->setMode(modeSwitch);
-      //this->centralObject->setMode(3);
+     void classMain() {   
+      //Serial.println("called before update");   
       pollButtons();
+      pollSwitch();
       if (buttons.up == pressed and buttons.down == pressed) {
         buttons.up     = notPressed;
         buttons.down   = notPressed;
@@ -102,12 +108,8 @@ class UserInputMonitor {
       buttons.up     = indeterminate;
       buttons.down   = indeterminate;
       buttons.select = indeterminate;
+      setMode(modeSwitch);
       
-      if (modeSwitch == manual) {        
-        automaticModeUI();
-      } else if (modeSwitch == manual) {
-        manualModeUI();        
-      }
       delay(100);
     }
     UserInputMonitor(CentralObject* _CentralObject) {

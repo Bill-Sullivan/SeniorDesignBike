@@ -35,6 +35,7 @@ class CadenceSensor {
   CadenceSensor(CentralObject* _pCentralObject) {
     pCentralObject = _pCentralObject;
   }
+
   
   void classMain() {
   
@@ -84,8 +85,8 @@ class CadenceSensor {
     Serial.println();
   
     averager.addSample(cadence);
-  }
-  //pCentralObject->setCadence(cadence);
+  }  
+  pCentralObject->setCadence(cadence);
   delay(1);
  }
 };

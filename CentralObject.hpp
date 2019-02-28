@@ -9,7 +9,6 @@
 #include "SharedStructDefinitions.hpp"
 #include "LCD.hpp"
 
-
 class CentralObject {
   protected:
     double cadence;
@@ -19,12 +18,15 @@ class CentralObject {
 
     Buttons buttons;
 
-    Displayer* pDisplayer;
+    
     GearShiftController  gearShiftController;
 
     bool uIWasHere = 0;
     
   public:
+    //Displayer* pDisplayer;
+    LCD* pDisplayer;
+  
     bool setMode(shiftMode _mode);
     bool setCadence(double _cadence);
     bool setTargetCadence(double _targetCadence);
@@ -34,6 +36,50 @@ class CentralObject {
     double getCadence();
     double getTargetCadence();
     uint8_t getGear();
+
+      void automaticModeUI() {
+        
+      Serial.println("auto ui");
+      static bool selectPressedOnce = false;
+
+      if (buttons.select == pressed and selectPressedOnce == false) {
+        Serial.println("Initial Select Pressed");
+        selectPressedOnce = true;
+        buttons.select = notPressed;
+        buttons.up     = notPressed;
+        buttons.down   = notPressed;
+      }
+      if (selectPressedOnce == true) {
+        Serial.println("selectPressedOnce");
+        if (buttons.up == pressed) {
+          targetCadence += 1.0;
+          buttons.up = notPressed;
+        }  else if (buttons.down == pressed) {
+          targetCadence -= 1.0;
+          buttons.down = notPressed;
+        }
+        Serial.println(targetCadence, 10);
+      } else {
+        Serial.println("no selectPressedOnce");
+      }
+        
+        
+        if (buttons.select == pressed and selectPressedOnce == true and getCadence() <= 5) {
+          Serial.println("showDesiredCadenceSetMessage");
+          pDisplayer->showDesiredCadenceSetMessage();
+          buttons.select = notPressed;
+          selectPressedOnce = false;
+        } else {
+          if (getCadence() > 5) {
+            targetCadence = cadence;
+            pDisplayer->showDesiredCadenceSetMessage();
+          }
+        }
+        
+      }
+       void manualModeUI() {
+      
+    }
 
      void classMain() {
      while(1) {
@@ -49,13 +95,18 @@ class CentralObject {
         */
         if (buttons.up == pressed) {
           Serial.println("Shift Up");
-          gearShiftController.shiftUp();
+          gear = gearShiftController.shiftUp();
           buttons.up = notPressed;
         }  else if (buttons.down == pressed) {
           Serial.println("Shift Down");
-          gearShiftController.shiftDown();
+          gear = gearShiftController.shiftDown();
           buttons.down = notPressed;
         }      
+      }
+      if (mode == automatic) {        
+        automaticModeUI();
+      } else if (mode == manual) {
+        manualModeUI();        
       }
 
       pDisplayer->updateCadence(cadence);
@@ -97,11 +148,28 @@ class CentralObject {
       
       return;
     }
-    CentralObject(Displayer* lcd) {
+    CentralObject(LCD* lcd) {
       pDisplayer = lcd;
+      mode = manual;
+      gear = 1;
     }
 };
 
-bool CentralObject::setMode(shiftMode _mode) {
+double CentralObject::getCadence() {
+  return cadence;
+}
+bool CentralObject::setMode(shiftMode _mode) {  
   mode = _mode;
+}
+
+bool CentralObject::setCadence(double _cadence) {
+  cadence = _cadence;
+}
+
+
+bool CentralObject::setTargetCadence(double _targetCadence) {
+  targetCadence = _targetCadence;
+}
+bool CentralObject::setGear(uint8_t _gear) {
+  gear = _gear;
 }

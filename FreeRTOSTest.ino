@@ -31,12 +31,11 @@ void callSensorClassMain() {
 void setup() 
 {
   Serial.begin(115200);
-  while ( !Serial ) delay(10);   // for nrf52840 with native usb
+  while ( !Serial && millis() < 2000) delay(10);   // for nrf52840 with native usb
   Serial.println("Start");
   centralObject.setupClass();
   userInputMonitor.setupClass();
 
-  
   // Create loop2() using Scheduler to run in 'parallel' with loop()
   Scheduler.startLoop (callCenralObjectClassMain);
   Scheduler.startLoop (callUserInputMonitorClassMain);

@@ -58,6 +58,8 @@ class LCD :public Displayer {
     float tgtCad;
     uint8_t gr;
     shiftMode md;
+
+    unsigned long delayTime = 0;
   
   public:
 
@@ -75,46 +77,31 @@ class LCD :public Displayer {
     }
     bool updateMode(shiftMode _mode)
     {
+      
       md = _mode;
     }
-    bool classMain()
+
+    bool delayLCD(unsigned long ms)
     {
-      while(1){ 
-        //Serial.println("LCD Class Main");
-        updateDisplay();
-        delay(2000);
-      }
+      delayTime = ms;
     }
 
-    bool updateDisplay()
+    bool setCursor(unsigned int x, unsigned int y)
     {
-      if(md == automatic && cad <= 5)
-      {
-        uint8_t cadenceSet = 0;
-        float tempDesCad = 80;
-        
-        while(!cadenceSet)
+        int lineOffset = 0;
+        if (y == 1)
         {
-          Wire.beginTransmission(DISPLAY_ADDRESS1);
-          Wire.write('|'); //Put LCD into setting mode
-          Wire.write('-'); //Send clear display command
-          Wire.endTransmission();
-
-          delay(250);
-          
-          Wire.beginTransmission(DISPLAY_ADDRESS1);
-          Wire.print("Set desired     ");
-          Wire.print("cadence: ");
-          Wire.print(tgtCad);
-          Wire.endTransmission();
-
-          //needs to be changed to register when button is pressed rather than checking for a specific cadence
-          if (tgtCad == 85)
-          {
-            cadenceSet = 1;
-          }
+          lineOffset = 64;
         }
         
+        Wire.beginTransmission(DISPLAY_ADDRESS1);
+        Wire.write(254); //Put LCD into setting mode
+        Wire.write(128 + lineOffset + x);
+        Wire.endTransmission();
+    }
+
+    bool showDesiredCadenceSetMessage()
+    {
         Wire.beginTransmission(DISPLAY_ADDRESS1);
         Wire.write('|'); //Put LCD into setting mode
         Wire.write('-'); //Send clear display command
@@ -124,48 +111,99 @@ class LCD :public Displayer {
 
         Wire.beginTransmission(DISPLAY_ADDRESS1);
         Wire.print("Desired cadence set at: ");
-        Wire.print(tgtCad);
+        Wire.print((int)tgtCad);
         Wire.endTransmission();
-        delay(2000);
-        
-      }
+        delayLCD(2000);
+    }
 
-      if (md == automatic)
-      {
+    bool showDesiredCadenceInputMessage()
+    {
         Wire.beginTransmission(DISPLAY_ADDRESS1);
         Wire.write('|'); //Put LCD into setting mode
         Wire.write('-'); //Send clear display command
         Wire.endTransmission();
+
+        delay(10);
+
+        Wire.beginTransmission(DISPLAY_ADDRESS1);
+        Wire.print("Set desired cadence: ");
+        Wire.print((int)tgtCad);
+        Wire.endTransmission();
+        delayLCD(500);
+    }
+    
+    bool classMain()
+    {
+      while(1){
+        delay(delayTime);
+        delayTime = 0;
+        updateDisplay();
+        delay(500);
+      }
+    }    
+
+    bool updateDisplay()
+    {
+      
+      if (md == automatic) {
+        Serial.println("automatic");
+      } else if (md == manual) {
+        Serial.println("maunal");
+      }
+/*
+        Wire.beginTransmission(DISPLAY_ADDRESS1);
+        Wire.write('|'); //Put LCD into setting mode
+        Wire.write('-'); //Send clear display command
+        Wire.endTransmission();
+
+        delay(250);
+        
+        Wire.beginTransmission(DISPLAY_ADDRESS1);
+        Wire.print("Set desired     ");
+        Wire.print("cadence: ");
+        Wire.print(tgtCad);
+        Wire.endTransmission();
+  */    
+      if (md == automatic)
+      {
+        setCursor(0,0);//top line position 0
         
         delay(10); //The maximum update rate of OpenLCD is about 100Hz (10ms). A smaller delay will cause flicker
         
         Wire.beginTransmission(DISPLAY_ADDRESS1); // transmit to device #1
         Wire.print("Gr. Cad. TarCad.");
+        Wire.endTransmission();
+
+        Wire.beginTransmission(DISPLAY_ADDRESS1); // transmit to device #1
         Wire.print(" ");
         Wire.print(gr);
         Wire.print("   ");
-        Wire.print(cad);
-        Wire.print("     ");
-        Wire.print(tgtCad);
+        Wire.print((int)cad);
+        Wire.print("    ");
+        Wire.print((int)tgtCad);
         Wire.print("  ");
-        Wire.endTransmission(); //Stop I2C transmission    
+        Wire.endTransmission(); //Stop I2C transmission     
       }
       else if (md == manual)
       {
-        Wire.beginTransmission(DISPLAY_ADDRESS1);
-        Wire.write('|'); //Put LCD into setting mode
-        Wire.write('-'); //Send clear display command
-        Wire.endTransmission();
+        //Serial.print("Gear in LCD Class: ");
+        //Serial.println(gr);
+        setCursor(0,0);//top line position 0
         
         delay(10); //The maximum update rate of OpenLCD is about 100Hz (10ms). A smaller delay will cause flicker
         
         Wire.beginTransmission(DISPLAY_ADDRESS1); // transmit to device #1
         Wire.print("Gr. Cad. TarCad.");
+        Wire.endTransmission();
+
+        setCursor(0,1); //bottom line, position 0
+
+        Wire.beginTransmission(DISPLAY_ADDRESS1); // transmit to device #1
         Wire.print(" ");
         Wire.print(gr);
         Wire.print("   ");
-        Wire.print(cad);
-        Wire.print("     ");
+        Wire.print((int)cad);
+        Wire.print("    ");
         Wire.print("XX");
         Wire.print("  ");
         Wire.endTransmission(); //Stop I2C transmission     

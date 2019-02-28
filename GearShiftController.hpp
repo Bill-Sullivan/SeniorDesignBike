@@ -12,7 +12,7 @@
 #define MAX_GEAR 5
 #define MIN_GEAR 1
 
-#define START_GEAR 3
+#define START_GEAR 1
 
 #define GEAR_1_DOWN 14 
 #define GEAR_2_DOWN 32 
@@ -68,8 +68,9 @@ class GearShiftController {
       //currentGear = START_GEAR;
     }
     void setup() {
+     currentGear = START_GEAR;
      linAct.attach(13, 1000, 2000);
-     linAct.write(gearArrUp[0]); 
+     linAct.write(gearArrUp[START_GEAR-1]); 
     }
     
 };
