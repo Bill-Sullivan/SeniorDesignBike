@@ -8,24 +8,31 @@
 
 #define SDRD_SHIFT_RANGE 5
 
-class CentralObject;
 
 class ShiftLogic {
   protected:
-  static CentralObject* centralObject;
+  CentralObject* centralObject;
   public:
-  static void classMain() {
-    if (centralObject->getMode() == automatic) {
-      if (centralObject->getCadence() > centralObject->getTargetCadence() + SDRD_SHIFT_RANGE) {
+
+  ShiftLogic(CentralObject* _centralObject){
+    centralObject = _centralObject;
+  }
+  
+  void classMain() {
+    if (centralObject->getMode() == automatic) {      
+      if (centralObject->getCadence() > centralObject->getTargetCadence() + SDRD_SHIFT_RANGE and centralObject->getCadence() > 0 ) {
         centralObject->setGear(centralObject->getGear() + 1);
-      } else if (centralObject->getCadence() < centralObject->getTargetCadence() - SDRD_SHIFT_RANGE) {
+        Serial.println("Auto UP");
+      } else if (centralObject->getCadence() < centralObject->getTargetCadence() - SDRD_SHIFT_RANGE and centralObject->getCadence() > 0) {
         centralObject->setGear(centralObject->getGear() - 1);
+        Serial.println("Auto Down");
       }
     } 
     
     else if (centralObject->getMode() == manual) {
-      delay(500);
+       
     }
+    delay(500);
     
   }
 };

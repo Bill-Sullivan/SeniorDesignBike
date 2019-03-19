@@ -71,8 +71,8 @@ class UserInputMonitor {
       }
     }
   
-     bool setMode(shiftMode _mode) {
-      centralObject->setMode(_mode);
+     bool setMode(shiftMode _mode) {      
+      centralObject->setMode(_mode);      
     }
      void setTargetCadence(float _targetCadence) {
       centralObject->setTargetCadence(_targetCadence);

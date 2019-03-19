@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CentralObject.hpp"
+#include "SharedEnums.hpp"
 
 class SampleAverager {
   private:
@@ -31,6 +32,8 @@ class CadenceSensor {
   SampleAverager averager;
   uint8_t lastValue = LOW;
   double cadence;
+  PedalDirection pedalDirection;
+  
   public: 
   CadenceSensor(CentralObject* _pCentralObject) {
     pCentralObject = _pCentralObject;
@@ -43,6 +46,17 @@ class CadenceSensor {
   //Serial.println("Sensor");
   
   if (lastValue == LOW && analogRead(A0) > SENSOR_MIN_THRESHOLD) {
+    //To Do: when detect rising edge on cosine, check if sine is high or low and one way is forwards and the other is backwards
+    // if sin tansitions high and cosin is high the we're going forward
+    
+    if (analogRead(A1) > SENSOR_MIN_THRESHOLD) {
+      pedalDirection = backword;
+      Serial.println("backword");      
+    } else {
+      pedalDirection = forward;
+      Serial.println("forward");
+    }
+    
     //Serial.println(timeSince);
     //Serial.println(millis());
     int pulseWidth = millis() - timeSince;
@@ -56,11 +70,11 @@ class CadenceSensor {
     //currentCadence.setValue((uint8_t)cadence); 
     //Serial.println((uint8_t)cadence);
     //Serial.println(pulseWidth);
-    Serial.println(cadence, 10);
+    //Serial.println(cadence, 10);
     //char bufferName[40];
     //sprintf(bufferName, "%f\n", cadence);
     //Serial.println(bufferName);
-    Serial.println();
+    //Serial.println();
   
     averager.addSample(cadence);
     
@@ -78,15 +92,21 @@ class CadenceSensor {
     //currentCadence.setValue((uint8_t)cadence); 
     //Serial.println((uint8_t)cadence);
     //Serial.println(pulseWidth);
-    Serial.println(cadence, 10);
+    //Serial.println(cadence, 10);
     //char bufferName[40];
     //sprintf(bufferName, "%f\n", cadence);
     //Serial.println(bufferName);
-    Serial.println();
+    //Serial.println();
   
     averager.addSample(cadence);
+  } else if (millis() - timeSince > 1000){
+      cadence = 0.0;
   }  
-  pCentralObject->setCadence(cadence);
+  if (pedalDirection == forward) {
+    pCentralObject->setCadence(cadence);
+  } else {
+    pCentralObject->setCadence(-1.0*cadence);
+  }
   delay(1);
  }
 };

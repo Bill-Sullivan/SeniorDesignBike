@@ -7,6 +7,7 @@
 #include "GearShiftController.hpp"
 #include "SharedEnums.hpp"
 #include "SharedStructDefinitions.hpp"
+#include "SharedDefinitions.hpp"
 #include "LCD.hpp"
 
 class CentralObject {
@@ -15,6 +16,7 @@ class CentralObject {
     double targetCadence;
     uint8_t gear;
     shiftMode mode;
+    bool shiftModeTransistioned;
 
     Buttons buttons;
 
@@ -24,6 +26,7 @@ class CentralObject {
     bool uIWasHere = 0;
     
   public:
+  
     //Displayer* pDisplayer;
     LCD* pDisplayer;
   
@@ -70,9 +73,11 @@ class CentralObject {
           buttons.select = notPressed;
           selectPressedOnce = false;
         } else {
-          if (getCadence() > 5) {
+          if (getCadence() > 5 && shiftModeTransistioned == true) {
             targetCadence = cadence;
-            pDisplayer->showDesiredCadenceSetMessage();
+            pDisplayer->updateTargetCadence(targetCadence);
+            //pDisplayer->showDesiredCadenceSetMessage();
+            shiftModeTransistioned = false;
           }
         }
         
@@ -113,6 +118,7 @@ class CentralObject {
       pDisplayer->updateGear(gear);
       pDisplayer->updateTargetCadence(targetCadence);
       pDisplayer->updateMode(mode);
+
       
       
       delay(1000);              // wait for a half second  
@@ -139,6 +145,7 @@ class CentralObject {
 
       gearShiftController.setup();
       mode = manual;
+      shiftModeTransistioned = false;
 
       pDisplayer->setupDisplayer();      
 
@@ -158,18 +165,31 @@ class CentralObject {
 double CentralObject::getCadence() {
   return cadence;
 }
-bool CentralObject::setMode(shiftMode _mode) {  
-  mode = _mode;
+shiftMode CentralObject::getMode() {
+  return mode;
+}
+double CentralObject::getTargetCadence() {
+  return targetCadence;
+}
+uint8_t CentralObject::getGear() {
+  return gear;
 }
 
+bool CentralObject::setMode(shiftMode _mode) { 
+  if (mode != _mode) {
+    shiftModeTransistioned = true;
+  } 
+  mode = _mode;
+}
 bool CentralObject::setCadence(double _cadence) {
   cadence = _cadence;
 }
-
-
 bool CentralObject::setTargetCadence(double _targetCadence) {
   targetCadence = _targetCadence;
 }
 bool CentralObject::setGear(uint8_t _gear) {
-  gear = _gear;
+  if (MIN_GEAR <= _gear and _gear <= MAX_GEAR) {
+    gear = _gear;
+  }
+  
 }

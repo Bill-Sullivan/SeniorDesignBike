@@ -4,13 +4,14 @@
 #include "CentralObject.hpp"
 #include "UserInput.hpp"
 #include "CadenceSensor.hpp"
+#include "ShiftLogic.hpp"
 
 LCD lcd;
 
 CentralObject centralObject(&lcd);
 UserInputMonitor userInputMonitor(&centralObject);
 CadenceSensor cadenceSensor(&centralObject);
-
+ShiftLogic shiftLogic(&centralObject);
 
 void callCenralObjectClassMain() {
   centralObject.classMain();
@@ -28,6 +29,10 @@ void callSensorClassMain() {
   cadenceSensor.classMain();
 }
 
+void callShiftLogicClassMain() {
+  shiftLogic.classMain();
+}
+
 void setup() 
 {
   Serial.begin(115200);
@@ -41,7 +46,9 @@ void setup()
   Scheduler.startLoop (callUserInputMonitorClassMain);
   Scheduler.startLoop (callLCDClassMain);
   Scheduler.startLoop (callSensorClassMain);
+  Scheduler.startLoop (callShiftLogicClassMain);
 }
+
 
 /**
  * Toggle led1 every 1 second

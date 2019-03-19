@@ -3,14 +3,13 @@
 #include <stdint.h>
 #include <Arduino.h>
 
+#include "SharedDefinitions.hpp"
+
 #include <Servo.h>
 #include <string.h>
 
 #define UP_PIN   2
 #define DOWN_PIN 3
-
-#define MAX_GEAR 5
-#define MIN_GEAR 1
 
 #define START_GEAR 1
 

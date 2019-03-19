@@ -54,8 +54,8 @@ To get this code to work, attached an OpenLCD to an Arduino Uno using the follow
 
 class LCD :public Displayer {
   protected:
-    float cad;
-    float tgtCad;
+    double cad;
+    double tgtCad;
     uint8_t gr;
     shiftMode md;
 
@@ -144,12 +144,13 @@ class LCD :public Displayer {
 
     bool updateDisplay()
     {
-      
+      /*
       if (md == automatic) {
         Serial.println("automatic");
       } else if (md == manual) {
         Serial.println("maunal");
       }
+      */
 /*
         Wire.beginTransmission(DISPLAY_ADDRESS1);
         Wire.write('|'); //Put LCD into setting mode
