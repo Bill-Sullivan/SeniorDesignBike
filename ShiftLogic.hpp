@@ -14,12 +14,12 @@ class ShiftLogic {
   CentralObject* centralObject;
   public:
 
-  ShiftLogic(CentralObject* _centralObject){
+  ShiftLogic(CentralObject* _centralObject) {
     centralObject = _centralObject;
   }
   
   void classMain() {
-    if (centralObject->getMode() == automatic) {      
+    if (centralObject->getMode() == automatic) { 
       if (centralObject->getCadence() > centralObject->getTargetCadence() + SDRD_SHIFT_RANGE and centralObject->getCadence() > 0 ) {
         centralObject->setGear(centralObject->getGear() + 1);
         Serial.println("Auto UP");

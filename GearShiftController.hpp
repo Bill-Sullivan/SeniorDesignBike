@@ -8,9 +8,6 @@
 #include <Servo.h>
 #include <string.h>
 
-#define UP_PIN   2
-#define DOWN_PIN 3
-
 #define START_GEAR 1
 
 #define GEAR_1_DOWN 14 
@@ -26,9 +23,12 @@
 #define GEAR_4_UP 48
 #define GEAR_5_UP 82
 
+#define LINEAR_ACTUATOR_PIN 13
 
 class GearShiftController {
   private:
+    unsigned long lastShiftTime;
+  
     Servo linAct;
     int gearArrUp[5]   = {GEAR_1_UP, GEAR_2_UP, GEAR_3_UP, GEAR_4_UP, GEAR_5_UP};
     int gearArrDown[5] = {GEAR_1_DOWN, GEAR_2_DOWN, GEAR_3_DOWN, GEAR_4_DOWN, GEAR_5_DOWN};
@@ -36,10 +36,16 @@ class GearShiftController {
     uint8_t currentGear;
     
     uint8_t setGear(uint8_t gear) {
+      if (SDRD_SHIFT_DELY + millis() > lastShiftTime) {
+        return currentGear;
+      }
+      
       if (gear < currentGear) {
         linAct.write(gearArrUp[gear-1]);
+        lastShiftTime = millis();        
       } else if (gear > currentGear) {
         linAct.write(gearArrDown[gear-1]);
+        lastShiftTime = millis();        
       }
       
       currentGear = gear;	  
@@ -68,7 +74,8 @@ class GearShiftController {
     }
     void setup() {
      currentGear = START_GEAR;
-     linAct.attach(13, 1000, 2000);
+     lastShiftTime = millis();
+     linAct.attach(LINEAR_ACTUATOR_PIN, 1000, 2000);
      linAct.write(gearArrUp[START_GEAR-1]); 
     }
     
