@@ -177,6 +177,9 @@ uint8_t CentralObject::getGear() {
 
 bool CentralObject::setMode(shiftMode _mode) { 
   if (mode != _mode) {
+    buttons.up     = notPressed;
+    buttons.down   = notPressed;      
+    buttons.select = notPressed;
     shiftModeTransistioned = true;
   } 
   mode = _mode;
