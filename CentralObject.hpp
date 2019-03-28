@@ -87,8 +87,7 @@ class CentralObject {
     }
 
      void classMain() {
-     while(1) {
-      digitalToggle(LED_RED); // Toggle LED
+     while(1) {      
       //Serial.println("Central Object");            
       if (mode == manual) {
         //Serial.println("Manual");

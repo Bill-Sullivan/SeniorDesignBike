@@ -5,6 +5,7 @@
 #include "UserInput.hpp"
 #include "CadenceSensor.hpp"
 #include "ShiftLogic.hpp"
+#include "BluetoothOutput.hpp"
 
 LCD lcd;
 
@@ -12,6 +13,7 @@ CentralObject centralObject(&lcd);
 UserInputMonitor userInputMonitor(&centralObject);
 CadenceSensor cadenceSensor(&centralObject);
 ShiftLogic shiftLogic(&centralObject);
+BluetoothOutput bluetoothOutput(&centralObject);
 
 void callCenralObjectClassMain() {
   centralObject.classMain();
@@ -32,6 +34,9 @@ void callSensorClassMain() {
 void callShiftLogicClassMain() {
   shiftLogic.classMain();
 }
+void callBluetoothOutputClassMain() {
+  bluetoothOutput.classMain();
+}
 
 void setup() 
 {
@@ -40,6 +45,7 @@ void setup()
   Serial.println("Start");
   centralObject.setupClass();
   userInputMonitor.setupClass();
+  bluetoothOutput.setupClass();
 
   // Create loop2() using Scheduler to run in 'parallel' with loop()
   Scheduler.startLoop (callCenralObjectClassMain);
@@ -47,6 +53,7 @@ void setup()
   Scheduler.startLoop (callLCDClassMain);
   Scheduler.startLoop (callSensorClassMain);
   Scheduler.startLoop (callShiftLogicClassMain);
+  Scheduler.startLoop (callBluetoothOutputClassMain);
 }
 
 

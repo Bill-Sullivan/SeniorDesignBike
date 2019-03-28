@@ -25,6 +25,8 @@
 
 #define LINEAR_ACTUATOR_PIN 13
 
+#define SDRD_SHIFT_DELAY 5000
+
 class GearShiftController {
   private:
     unsigned long lastShiftTime;
@@ -36,7 +38,7 @@ class GearShiftController {
     uint8_t currentGear;
     
     uint8_t setGear(uint8_t gear) {
-      if (SDRD_SHIFT_DELY + millis() > lastShiftTime) {
+      if (SDRD_SHIFT_DELAY + millis() > lastShiftTime) {
         return currentGear;
       }
       
