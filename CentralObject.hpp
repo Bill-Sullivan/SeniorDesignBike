@@ -40,97 +40,34 @@ class CentralObject {
     double getTargetCadence();
     uint8_t getGear();
 
-      void automaticModeUI() {
-        
-      Serial.println("auto ui");
-      static bool selectPressedOnce = false;
-
-      if (buttons.select == pressed and selectPressedOnce == false) {
-        Serial.println("Initial Select Pressed");
-        selectPressedOnce = true;
-        buttons.select = notPressed;
-        buttons.up     = notPressed;
-        buttons.down   = notPressed;
-      }
-      if (selectPressedOnce == true) {
-        Serial.println("selectPressedOnce");
-        if (buttons.up == pressed) {
-          targetCadence += 1.0;
-          buttons.up = notPressed;
-        }  else if (buttons.down == pressed) {
-          targetCadence -= 1.0;
-          buttons.down = notPressed;
-        }
-        Serial.println(targetCadence, 10);
-      } else {
-        Serial.println("no selectPressedOnce");
-      }
-        
-        
-        if (buttons.select == pressed and selectPressedOnce == true and getCadence() <= 5) {
-          Serial.println("showDesiredCadenceSetMessage");
-          pDisplayer->showDesiredCadenceSetMessage();
-          buttons.select = notPressed;
-          selectPressedOnce = false;
-        } else {
-          if (getCadence() > 5 && shiftModeTransistioned == true) {
-            targetCadence = cadence;
-            pDisplayer->updateTargetCadence(targetCadence);
-            //pDisplayer->showDesiredCadenceSetMessage();
-            shiftModeTransistioned = false;
-          }
-        }
-        
-      }
-       void manualModeUI() {
-      
-    }
+    void automaticModeUI();
+    void manualModeUI();
 
      void classMain() {
-     while(1) {      
-      //Serial.println("Central Object");            
-      if (mode == manual) {
-        //Serial.println("Manual");
-        //Serial.println((uint32_t)&buttons.up);
-        /*
-        if (buttons.up == pressed) Serial.println("UP Pressed");
-        if (buttons.up == notPressed) Serial.println("UP Not Pressed");
-        if (buttons.up == held) Serial.println("UP held");
-        */
-        if (buttons.up == pressed) {
-          Serial.println("Shift Up");
-          gear = gearShiftController.shiftUp();
-          buttons.up = notPressed;
-        }  else if (buttons.down == pressed) {
-          Serial.println("Shift Down");
-          gear = gearShiftController.shiftDown();
-          buttons.down = notPressed;
-        }      
-      }
+     while(1) {
       if (mode == automatic) {        
         automaticModeUI();
       } else if (mode == manual) {
         manualModeUI();        
       }
+      if (gearShiftController.getGear() < gear) {
+        gear = gearShiftController.shiftUp();
+      } else if (gearShiftController.getGear() > gear) {
+        gear = gearShiftController.shiftDown();
+      }
+      
 
       pDisplayer->updateCadence(cadence);
       pDisplayer->updateGear(gear);
       pDisplayer->updateTargetCadence(targetCadence);
-      pDisplayer->updateMode(mode);
-
-      
+      pDisplayer->updateMode(mode);      
       
       delay(1000);              // wait for a half second  
      }
     }
      void updateButtons(Buttons _buttons) {
-      //buttons = _buttons;
-      //Serial.println("Updated");
       if (_buttons.up     == pressed)  {
         buttons.up     = pressed;
-        //Serial.println((uint32_t)&buttons.up);
-        //if (buttons.up == pressed) Serial.println("UP Recieved");
-        //if (buttons.up == notPressed) Serial.println("UP Recieved not Pressed");
         uIWasHere = true;
       }
       if (_buttons.down   == pressed) buttons.down   = _buttons.down;
@@ -192,6 +129,60 @@ bool CentralObject::setTargetCadence(double _targetCadence) {
 bool CentralObject::setGear(uint8_t _gear) {
   if (MIN_GEAR <= _gear and _gear <= MAX_GEAR) {
     gear = _gear;
-  }
-  
+  }  
+}
+
+void CentralObject::automaticModeUI() {
+
+        
+      Serial.println("auto ui");
+      static bool selectPressedOnce = false;
+
+      if (buttons.select == pressed and selectPressedOnce == false) {
+        Serial.println("Initial Select Pressed");
+        selectPressedOnce = true;
+        buttons.select = notPressed;
+        buttons.up     = notPressed;
+        buttons.down   = notPressed;
+      }
+      if (selectPressedOnce == true) {
+        Serial.println("selectPressedOnce");
+        if (buttons.up == pressed) {
+          targetCadence += 1.0;
+          buttons.up = notPressed;
+        }  else if (buttons.down == pressed) {
+          targetCadence -= 1.0;
+          buttons.down = notPressed;
+        }
+        Serial.println(targetCadence, 10);
+      } else {
+        Serial.println("no selectPressedOnce");
+      }
+        
+        
+        if (buttons.select == pressed and selectPressedOnce == true and getCadence() <= 5) {
+          Serial.println("showDesiredCadenceSetMessage");
+          pDisplayer->showDesiredCadenceSetMessage();
+          buttons.select = notPressed;
+          selectPressedOnce = false;
+        } else {
+          if (getCadence() > 5 && shiftModeTransistioned == true) {
+            targetCadence = cadence;
+            pDisplayer->updateTargetCadence(targetCadence);
+            //pDisplayer->showDesiredCadenceSetMessage();
+            shiftModeTransistioned = false;
+          }
+        }                
+}
+
+void CentralObject::manualModeUI() {
+       if (buttons.up == pressed) {
+          Serial.println("Shift Up");
+          gear = gearShiftController.shiftUp();
+          buttons.up = notPressed;
+        }  else if (buttons.down == pressed) {
+          Serial.println("Shift Down");
+          gear = gearShiftController.shiftDown();
+          buttons.down = notPressed;
+        }
 }

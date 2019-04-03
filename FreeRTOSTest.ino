@@ -46,6 +46,7 @@ void setup()
   centralObject.setupClass();
   userInputMonitor.setupClass();
   bluetoothOutput.setupClass();
+  lcd.setupDisplayer();
 
   // Create loop2() using Scheduler to run in 'parallel' with loop()
   Scheduler.startLoop (callCenralObjectClassMain);

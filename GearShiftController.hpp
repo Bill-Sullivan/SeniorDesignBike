@@ -38,7 +38,11 @@ class GearShiftController {
     uint8_t currentGear;
     
     uint8_t setGear(uint8_t gear) {
-      if (SDRD_SHIFT_DELAY + millis() > lastShiftTime) {
+      Serial.println("setGear called");
+      if (SDRD_SHIFT_DELAY + millis() < lastShiftTime) {
+        Serial.println("called");
+        Serial.println(lastShiftTime);
+        Serial.println(SDRD_SHIFT_DELAY + millis());
         return currentGear;
       }
       
@@ -57,7 +61,11 @@ class GearShiftController {
 	  return currentGear;
     }
   public:
+    uint8_t getGear() {
+      return currentGear;
+    }
     uint8_t shiftUp() {
+      Serial.println("shiftUp called");
       if (currentGear >= MAX_GEAR) {
         return setGear(MAX_GEAR);
       } else {        
@@ -65,6 +73,7 @@ class GearShiftController {
       }
     }
     uint8_t shiftDown() {
+      Serial.println("shiftDown called");
       if (currentGear <= MIN_GEAR) {
         return setGear(MIN_GEAR);
       } else {        ;

@@ -7,9 +7,9 @@
 #include "SharedEnums.hpp"
 #include "SharedStructDefinitions.hpp"
 
-#define UP_PIN     10
-#define DOWN_PIN   11
-#define SELECT_PIN  6 
+#define UP_PIN     6
+#define DOWN_PIN   5
+#define SELECT_PIN  10 
 
 #define MODE_PIN 9
 
