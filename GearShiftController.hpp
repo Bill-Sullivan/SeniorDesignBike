@@ -13,15 +13,14 @@
 #define GEAR_1_DOWN 14 
 #define GEAR_2_DOWN 32 
 #define GEAR_3_DOWN 44
-#define GEAR_4_DOWN 58
-#define GEAR_5_DOWN 82
-
+#define GEAR_4_DOWN 54
+#define GEAR_5_DOWN 60
 
 #define GEAR_1_UP 14
 #define GEAR_2_UP 30 
 #define GEAR_3_UP 37
-#define GEAR_4_UP 48
-#define GEAR_5_UP 82
+#define GEAR_4_UP 49
+#define GEAR_5_UP 60
 
 #define LINEAR_ACTUATOR_PIN 13
 
@@ -39,7 +38,7 @@ class GearShiftController {
     
     uint8_t setGear(uint8_t gear) {
       Serial.println("setGear called");
-      if (SDRD_SHIFT_DELAY + millis() < lastShiftTime) {
+      if (millis() < lastShiftTime + SDRD_SHIFT_DELAY) {
         Serial.println("called");
         Serial.println(lastShiftTime);
         Serial.println(SDRD_SHIFT_DELAY + millis());
