@@ -51,10 +51,10 @@ class CadenceSensor {
     
     if (analogRead(A1) > SENSOR_MIN_THRESHOLD) {
       pedalDirection = backword;
-      Serial.println("backword");      
+      //Serial.println("backword");      
     } else {
       pedalDirection = forward;
-      Serial.println("forward");
+      //Serial.println("forward");
     }
     
     //Serial.println(timeSince);
@@ -102,10 +102,13 @@ class CadenceSensor {
   } else if (millis() - timeSince > 1000){
       cadence = 0.0;
   }  
-  if (pedalDirection == forward) {
-    pCentralObject->setCadence(cadence);
-  } else {
-    pCentralObject->setCadence(-1.0*cadence);
+
+  if (cadence == 0.0) {
+     pCentralObject->setCadence(cadence);
+  } else if (pedalDirection == forward) {
+    pCentralObject->setCadence(averager.getAverage());
+  } else if (pedalDirection == backword) {
+    pCentralObject->setCadence(-1.0*averager.getAverage());
   }
   delay(1);
  }
