@@ -187,8 +187,6 @@ class LCD :public Displayer {
       }
       else if (md == manual)
       {
-        //Serial.print("Gear in LCD Class: ");
-        //Serial.println(gr);
         setCursor(0,0);//top line position 0
         
         delay(10); //The maximum update rate of OpenLCD is about 100Hz (10ms). A smaller delay will cause flicker

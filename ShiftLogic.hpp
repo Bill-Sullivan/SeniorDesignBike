@@ -8,6 +8,9 @@
 
 #define SDRD_SHIFT_RANGE 5
 
+#define HIGH_TORQUE_SHIFT_THRESHHOLD 6800
+#define LOW_TORQUE_SHIFT_THRESHHOLD  6300
+
 
 class ShiftLogic {
   protected:
@@ -20,14 +23,32 @@ class ShiftLogic {
   
   void classMain() {
     if (centralObject->getMode() == automatic) { 
-      if (centralObject->getCadence() > centralObject->getTargetCadence() + SDRD_SHIFT_RANGE and centralObject->getCadence() > 0 ) {
-        centralObject->setGear(centralObject->getGear() + 1);
-        Serial.println("Auto UP");
-      } else if (centralObject->getCadence() < centralObject->getTargetCadence() - SDRD_SHIFT_RANGE and centralObject->getCadence() > 0) {
+      double cadence = centralObject->getCadence();
+      double targetCadence = centralObject->getTargetCadence();
+
+      #if defined(STRICT_SDRD_ADHERENCE)
+      if (cadence  > targetCadence + SDRD_SHIFT_RANGE and centralObject->getCadence() > 0 ) {        
+        centralObject->setGear(centralObject->getGear() + 1);        
+      } else if (cadence < targetCadence - SDRD_SHIFT_RANGE and centralObject->getCadence() > 0) {
         centralObject->setGear(centralObject->getGear() - 1);
-        Serial.println("Auto Down");
       }
-    } 
+      #else
+      uint16_t torque = centralObject->getTorque();
+      if (cadence > 0.0) {
+        if (torque < LOW_TORQUE_SHIFT_THRESHHOLD) {
+          if (cadence < targetCadence + SDRD_SHIFT_RANGE) {
+            centralObject->shiftDown();
+          } else {
+            centralObject->shiftUp();
+          }
+        } else if (torque > HIGH_TORQUE_SHIFT_THRESHHOLD) {
+          if (cadence > targetCadence - SDRD_SHIFT_RANGE and cadence > 0.0) {
+            centralObject->shiftUp();
+          }          
+        }  
+      }      
+      #endif      
+    }
     
     else if (centralObject->getMode() == manual) {
        

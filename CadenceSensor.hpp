@@ -3,27 +3,11 @@
 #include "CentralObject.hpp"
 #include "SharedEnums.hpp"
 
-class SampleAverager {
-  private:
-    double samples[16];
-    uint8_t currSample = 0;
-  public:
-    double getAverage() {
-      double total = 0.0;
-      for (double sample : samples) {
-        total += sample;
-      }
-      total /= 16;
-      return total;
-    }
-    double addSample(double sample) {
-      samples[currSample] = sample;
-      currSample++;
-      currSample = currSample % 16;
-    }
-};
+#include "SampleAverager.hpp"
+#include "TorqueReader.hpp"
 
-#define SENSOR_MIN_THRESHOLD (1024 /8)
+//#define SENSOR_MIN_THRESHOLD (1024 /8)
+#define SENSOR_MIN_THRESHOLD (16384 /8)
 
 class CadenceSensor {
   protected:
@@ -33,17 +17,15 @@ class CadenceSensor {
   uint8_t lastValue = LOW;
   double cadence;
   PedalDirection pedalDirection;
+  TorqueReader* pTorqueReader;
   
   public: 
-  CadenceSensor(CentralObject* _pCentralObject) {
+  CadenceSensor(CentralObject* _pCentralObject, TorqueReader* _pTorqueReader) {
     pCentralObject = _pCentralObject;
+    pTorqueReader = _pTorqueReader;
   }
-
   
   void classMain() {
-  
-  
-  //Serial.println("Sensor");
   
   if (lastValue == LOW && analogRead(A0) > SENSOR_MIN_THRESHOLD) {
     //To Do: when detect rising edge on cosine, check if sine is high or low and one way is forwards and the other is backwards
@@ -51,14 +33,10 @@ class CadenceSensor {
     
     if (analogRead(A1) > SENSOR_MIN_THRESHOLD) {
       pedalDirection = backword;
-      //Serial.println("backword");      
     } else {
       pedalDirection = forward;
-      //Serial.println("forward");
     }
     
-    //Serial.println(timeSince);
-    //Serial.println(millis());
     int pulseWidth = millis() - timeSince;
     
     timeSince = millis();
@@ -66,21 +44,11 @@ class CadenceSensor {
     
     cadence = (60.0 * 1000.0) / ((double)(pulseWidth)) ; //convert miliseconds/segment crossing to rotations/ second
     cadence /= 16;   // convert rotations/ second to rotations/ minute
-    
-    //currentCadence.setValue((uint8_t)cadence); 
-    //Serial.println((uint8_t)cadence);
-    //Serial.println(pulseWidth);
-    //Serial.println(cadence, 10);
-    //char bufferName[40];
-    //sprintf(bufferName, "%f\n", cadence);
-    //Serial.println(bufferName);
-    //Serial.println();
   
     averager.addSample(cadence);
+    pTorqueReader->measureTorque();
     
   } else if (lastValue == HIGH && analogRead(A0) < SENSOR_MIN_THRESHOLD) {
-    //Serial.println(timeSince);
-    //Serial.println(millis());
     int pulseWidth = millis() - timeSince;
     
     timeSince = millis();
@@ -88,17 +56,9 @@ class CadenceSensor {
   
     cadence = (60.0 * 1000.0) / ((double)(pulseWidth)) ; //convert miliseconds/segment crossing to rotations/ second
     cadence /= 16;   // convert rotations/ second to rotations/ minute
-    
-    //currentCadence.setValue((uint8_t)cadence); 
-    //Serial.println((uint8_t)cadence);
-    //Serial.println(pulseWidth);
-    //Serial.println(cadence, 10);
-    //char bufferName[40];
-    //sprintf(bufferName, "%f\n", cadence);
-    //Serial.println(bufferName);
-    //Serial.println();
   
     averager.addSample(cadence);
+    pTorqueReader->measureTorque();
   } else if (millis() - timeSince > 1000){
       cadence = 0.0;
   }  

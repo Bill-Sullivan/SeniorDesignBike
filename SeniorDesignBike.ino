@@ -1,19 +1,23 @@
 #pragma once
 
+#define STRICT_SDRD_ADHERENCE
+
 #include <Arduino.h>
 #include "CentralObject.hpp"
 #include "UserInput.hpp"
 #include "CadenceSensor.hpp"
 #include "ShiftLogic.hpp"
 #include "BluetoothOutput.hpp"
+#include "TorqueReader.hpp"
 
 LCD lcd;
 
 CentralObject centralObject(&lcd);
 UserInputMonitor userInputMonitor(&centralObject);
-CadenceSensor cadenceSensor(&centralObject);
 ShiftLogic shiftLogic(&centralObject);
 BluetoothOutput bluetoothOutput(&centralObject);
+TorqueReader torqueReader(&centralObject);
+CadenceSensor cadenceSensor(&centralObject, &torqueReader);
 
 void callCenralObjectClassMain() {
   centralObject.classMain();
@@ -42,6 +46,7 @@ void setup()
 {
   Serial.begin(115200);
   while ( !Serial && millis() < 2000) delay(10);   // for nrf52840 with native usb
+  analogReadResolution(14);
   Serial.println("Start");
   centralObject.setupClass();
   userInputMonitor.setupClass();
