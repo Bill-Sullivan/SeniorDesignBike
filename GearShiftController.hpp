@@ -4,6 +4,7 @@
 #include <Arduino.h>
 
 #include "SharedDefinitions.hpp"
+#include "SharedStructDefinitions.hpp"
 
 #include <Servo.h>
 #include <string.h>
@@ -31,8 +32,8 @@ class GearShiftController {
     unsigned long lastShiftTime;
   
     Servo linAct;
-    int gearArrUp[5]   = {GEAR_1_UP, GEAR_2_UP, GEAR_3_UP, GEAR_4_UP, GEAR_5_UP};
-    int gearArrDown[5] = {GEAR_1_DOWN, GEAR_2_DOWN, GEAR_3_DOWN, GEAR_4_DOWN, GEAR_5_DOWN};
+    uint8_t gearArrUp[5]   = {GEAR_1_UP, GEAR_2_UP, GEAR_3_UP, GEAR_4_UP, GEAR_5_UP};
+    uint8_t gearArrDown[5] = {GEAR_1_DOWN, GEAR_2_DOWN, GEAR_3_DOWN, GEAR_4_DOWN, GEAR_5_DOWN};
   
     uint8_t currentGear;
     
@@ -55,6 +56,11 @@ class GearShiftController {
 	  return currentGear;
     }
   public:
+    void updateShiftPoints(ShiftPointArr shiftPointArr) {
+      memcpy(gearArrUp,   shiftPointArr.gearArrUp,   sizeof(gearArrUp));
+      memcpy(gearArrDown, shiftPointArr.gearArrDown, sizeof(gearArrUp));
+    }
+    
     uint8_t getGear() {
       return currentGear;
     }
@@ -79,7 +85,7 @@ class GearShiftController {
      currentGear = START_GEAR;
      lastShiftTime = millis();
      linAct.attach(LINEAR_ACTUATOR_PIN, 1000, 2000);
-     linAct.write(gearArrUp[START_GEAR-1]); 
+     linAct.write(gearArrUp[START_GEAR-1]);
     }
     
 };

@@ -1,6 +1,6 @@
 #pragma once
 
-#define STRICT_SDRD_ADHERENCE
+//#define STRICT_SDRD_ADHERENCE
 
 #include <Arduino.h>
 #include "CentralObject.hpp"

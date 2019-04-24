@@ -28,6 +28,9 @@ class CentralObject {
     bool uIWasHere = 0;
     
   public:
+    void updateShiftPoints(ShiftPointArr shiftPointArr) {
+      gearShiftController.updateShiftPoints(shiftPointArr);
+    }
   
     //Displayer* pDisplayer;
     LCD* pDisplayer;
@@ -115,10 +118,14 @@ double CentralObject::getTargetCadence() {
   return targetCadence;
 }
 uint8_t CentralObject::getGear() {
-  return gear;
+  return gearShiftController.getGear();
 }
 uint16_t CentralObject::getTorque() {
   return gear;
+}
+
+bool CentralObject::setTorque(uint16_t _torque) {
+  torque = _torque;
 }
 
 bool CentralObject::setMode(shiftMode _mode) { 
@@ -142,9 +149,6 @@ bool CentralObject::setGear(uint8_t _gear) {
   }  
 }
 
-bool CentralObject::setTargetCadence(double _targetCadence) {
-  targetCadence = _targetCadence;
-}
 bool CentralObject::shiftUp() {
   setGear(gear+1);
 }

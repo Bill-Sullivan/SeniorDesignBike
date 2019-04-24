@@ -42,10 +42,14 @@ class ShiftLogic {
             centralObject->shiftUp();
           }
         } else if (torque > HIGH_TORQUE_SHIFT_THRESHHOLD) {
-          if (cadence > targetCadence - SDRD_SHIFT_RANGE and cadence > 0.0) {
+          if (cadence > targetCadence - SDRD_SHIFT_RANGE) {
             centralObject->shiftUp();
-          }          
-        }  
+          }
+        } else if (cadence  > targetCadence + SDRD_SHIFT_RANGE) {
+          centralObject->shiftUp();
+        } else if (cadence < targetCadence - SDRD_SHIFT_RANGE) {
+          centralObject->shiftDown();
+        }
       }      
       #endif      
     }
