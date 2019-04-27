@@ -9,7 +9,7 @@
 #include <Servo.h>
 #include <string.h>
 
-#define START_GEAR 1
+#define START_GEAR 5
 
 #define GEAR_1_DOWN 14 
 #define GEAR_2_DOWN 32 
